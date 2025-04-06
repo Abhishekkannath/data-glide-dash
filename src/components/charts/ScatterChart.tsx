@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ResponsiveContainer, ScatterChart as RechartsScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ZAxis } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartData } from '@/utils/urlParser';
@@ -11,20 +11,22 @@ interface ScatterChartProps {
 }
 
 const ScatterChart: React.FC<ScatterChartProps> = ({ title, description, data }) => {
-  // Transform data for recharts - for scatter charts, we need to create points with x/y coordinates
-  const transformedData = data.datasets.map(dataset => {
-    return {
-      name: dataset.name,
-      color: dataset.color,
-      data: dataset.data.map((value, index) => {
-        return {
-          x: index + 1, // X-axis could be the index or any other value
-          y: value,     // Y-axis is the actual data value
-          z: 10,        // Size of the point (optional)
-        };
-      })
-    };
-  });
+  // Transform data for recharts with memoization
+  const transformedData = useMemo(() => {
+    return data.datasets.map(dataset => {
+      return {
+        name: dataset.name,
+        color: dataset.color,
+        data: dataset.data.map((value, index) => {
+          return {
+            x: index + 1,
+            y: value,
+            z: 10,
+          };
+        })
+      };
+    });
+  }, [data]);
 
   return (
     <Card className="w-full">
@@ -70,4 +72,4 @@ const ScatterChart: React.FC<ScatterChartProps> = ({ title, description, data })
   );
 };
 
-export default ScatterChart;
+export default React.memo(ScatterChart);

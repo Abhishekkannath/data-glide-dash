@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartData } from '@/utils/urlParser';
@@ -11,25 +11,29 @@ interface PieChartProps {
 }
 
 const PieChart: React.FC<PieChartProps> = ({ title, description, data }) => {
-  // Transform data for recharts
-  const chartData = data.labels.map((label, index) => {
-    return {
-      name: label,
-      value: data.datasets[0].data[index]
-    };
-  });
+  // Transform data for recharts with memoization
+  const chartData = useMemo(() => {
+    return data.labels.map((label, index) => {
+      return {
+        name: label,
+        value: data.datasets[0].data[index]
+      };
+    });
+  }, [data]);
 
-  // Generate colors if not provided
-  const COLORS = data.datasets[0].data.map((_, index) => {
-    if (data.datasets[0].color) return data.datasets[0].color;
-    
-    const predefinedColors = [
-      '#3b82f6', '#14b8a6', '#6366f1', '#a855f7', '#ec4899', 
-      '#f97316', '#eab308', '#22c55e'
-    ];
-    
-    return predefinedColors[index % predefinedColors.length];
-  });
+  // Generate colors if not provided - now memoized
+  const COLORS = useMemo(() => {
+    return data.datasets[0].data.map((_, index) => {
+      if (data.datasets[0].color) return data.datasets[0].color;
+      
+      const predefinedColors = [
+        '#3b82f6', '#14b8a6', '#6366f1', '#a855f7', '#ec4899', 
+        '#f97316', '#eab308', '#22c55e'
+      ];
+      
+      return predefinedColors[index % predefinedColors.length];
+    });
+  }, [data]);
 
   return (
     <Card className="w-full">
@@ -65,4 +69,4 @@ const PieChart: React.FC<PieChartProps> = ({ title, description, data }) => {
   );
 };
 
-export default PieChart;
+export default React.memo(PieChart);

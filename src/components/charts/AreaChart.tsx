@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ResponsiveContainer, AreaChart as RechartsAreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartData } from '@/utils/urlParser';
@@ -11,14 +11,16 @@ interface AreaChartProps {
 }
 
 const AreaChart: React.FC<AreaChartProps> = ({ title, description, data }) => {
-  // Transform data for recharts
-  const chartData = data.labels.map((label, index) => {
-    const dataPoint: Record<string, any> = { name: label };
-    data.datasets.forEach(dataset => {
-      dataPoint[dataset.name] = dataset.data[index];
+  // Transform data for recharts with memoization
+  const chartData = useMemo(() => {
+    return data.labels.map((label, index) => {
+      const dataPoint: Record<string, any> = { name: label };
+      data.datasets.forEach(dataset => {
+        dataPoint[dataset.name] = dataset.data[index];
+      });
+      return dataPoint;
     });
-    return dataPoint;
-  });
+  }, [data]);
 
   return (
     <Card className="w-full">
@@ -60,4 +62,4 @@ const AreaChart: React.FC<AreaChartProps> = ({ title, description, data }) => {
   );
 };
 
-export default AreaChart;
+export default React.memo(AreaChart);

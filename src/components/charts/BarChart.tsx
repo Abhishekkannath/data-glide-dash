@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ResponsiveContainer, BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartData } from '@/utils/urlParser';
@@ -11,14 +11,16 @@ interface BarChartProps {
 }
 
 const BarChart: React.FC<BarChartProps> = ({ title, description, data }) => {
-  // Transform data for recharts
-  const chartData = data.labels.map((label, index) => {
-    const dataPoint: Record<string, any> = { name: label };
-    data.datasets.forEach(dataset => {
-      dataPoint[dataset.name] = dataset.data[index];
+  // Transform data for recharts with memoization
+  const chartData = useMemo(() => {
+    return data.labels.map((label, index) => {
+      const dataPoint: Record<string, any> = { name: label };
+      data.datasets.forEach(dataset => {
+        dataPoint[dataset.name] = dataset.data[index];
+      });
+      return dataPoint;
     });
-    return dataPoint;
-  });
+  }, [data]);
 
   return (
     <Card className="w-full">
@@ -50,4 +52,4 @@ const BarChart: React.FC<BarChartProps> = ({ title, description, data }) => {
   );
 };
 
-export default BarChart;
+export default React.memo(BarChart);

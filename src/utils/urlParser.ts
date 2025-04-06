@@ -8,8 +8,13 @@ export type ChartData = {
   }[];
 };
 
-// Parse URL query parameters
+// Cache for parsed URL parameters
+let cachedParams: Record<string, string> | null = null;
+
+// Parse URL query parameters with caching
 export const parseUrlParams = (): Record<string, string> => {
+  if (cachedParams) return cachedParams;
+  
   const params: Record<string, string> = {};
   const queryString = window.location.search;
   
@@ -20,26 +25,41 @@ export const parseUrlParams = (): Record<string, string> => {
     params[key] = value;
   });
   
+  cachedParams = params;
   return params;
 };
 
-// Create demo data if no params are provided
+// Cache for chart data
+const chartDataCache: Record<string, ChartData> = {};
+
+// Create demo data if no params are provided with caching
 export const getChartData = (chartType: string, params: Record<string, string>): ChartData => {
+  const cacheKey = `${chartType}-${JSON.stringify(params)}`;
+  
+  // Return cached data if available
+  if (chartDataCache[cacheKey]) {
+    return chartDataCache[cacheKey];
+  }
+  
   // Check if there's specific data for this chart
   const chartParam = params[chartType];
   
   if (chartParam) {
     try {
-      return JSON.parse(decodeURIComponent(chartParam));
+      const parsedData = JSON.parse(decodeURIComponent(chartParam));
+      chartDataCache[cacheKey] = parsedData;
+      return parsedData;
     } catch (e) {
       console.error(`Error parsing ${chartType} data:`, e);
     }
   }
   
   // Default/demo data for each chart type
+  let result: ChartData;
+  
   switch (chartType) {
     case 'line':
-      return {
+      result = {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
         datasets: [
           {
@@ -54,9 +74,10 @@ export const getChartData = (chartType: string, params: Record<string, string>):
           }
         ]
       };
+      break;
     
     case 'bar':
-      return {
+      result = {
         labels: ['Product A', 'Product B', 'Product C', 'Product D', 'Product E'],
         datasets: [
           {
@@ -66,9 +87,10 @@ export const getChartData = (chartType: string, params: Record<string, string>):
           }
         ]
       };
+      break;
     
     case 'pie':
-      return {
+      result = {
         labels: ['Desktop', 'Mobile', 'Tablet'],
         datasets: [
           {
@@ -78,9 +100,10 @@ export const getChartData = (chartType: string, params: Record<string, string>):
           }
         ]
       };
+      break;
     
     case 'area':
-      return {
+      result = {
         labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
         datasets: [
           {
@@ -90,9 +113,10 @@ export const getChartData = (chartType: string, params: Record<string, string>):
           }
         ]
       };
+      break;
     
     case 'scatter':
-      return {
+      result = {
         labels: ['Point 1', 'Point 2', 'Point 3', 'Point 4', 'Point 5', 'Point 6', 'Point 7'],
         datasets: [
           {
@@ -107,9 +131,10 @@ export const getChartData = (chartType: string, params: Record<string, string>):
           }
         ]
       };
+      break;
     
     default:
-      return {
+      result = {
         labels: ['A', 'B', 'C', 'D', 'E'],
         datasets: [
           {
@@ -119,7 +144,11 @@ export const getChartData = (chartType: string, params: Record<string, string>):
           }
         ]
       };
+      break;
   }
+  
+  chartDataCache[cacheKey] = result;
+  return result;
 };
 
 // Function to create a demo URL
