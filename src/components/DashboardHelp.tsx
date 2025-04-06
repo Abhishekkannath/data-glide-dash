@@ -55,7 +55,7 @@ const DashboardHelp: React.FC<DashboardHelpProps> = ({ onClose }) => {
             <h3 className="font-semibold mb-1">Example</h3>
             <p className="text-sm text-muted-foreground mb-1">Add this to your URL:</p>
             <pre className="bg-muted p-2 rounded-md text-xs overflow-x-auto">
-              ?line={"{"}"labels":["Jan","Feb","Mar"],"datasets":[{"{"}"name":"Sales","data":[10,20,30]{"}"]}]{"}"}
+              ?line={JSON.stringify({"labels":["Jan","Feb","Mar"],"datasets":[{"name":"Sales","data":[10,20,30]}]})}
             </pre>
           </div>
         </div>
